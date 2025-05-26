@@ -242,7 +242,7 @@ export default function AccountsPage() {
                 maximizar beneficios y minimizar costos.
               </p>
 
-              <Button variant="default" size="sm" className="mt-3">
+              <Button variant="outline" size="sm" className="mt-3">
                 Ver recomendación
               </Button>
             </div>

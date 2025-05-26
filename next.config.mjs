@@ -40,6 +40,9 @@ const nextConfig = {
       },
     ]
   },
+  env: {
+    DID_API_KEY: process.env.DID_API_KEY,
+  },
 }
 
 export default nextConfig

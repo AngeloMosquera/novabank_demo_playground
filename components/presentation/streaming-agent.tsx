@@ -227,7 +227,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         Logger.debug('Configuración de conexión', {
           apiUrl,
           endpoint,
-          hasApiKey: !!apiKey
+          hasApiKey: true
         })
         
         // Crear stream usando la API REST
@@ -331,6 +331,8 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
             if (peerConnectionRef.current?.connectionState === 'connected') {
               setIsStreaming(true)
               setConnectionState('connected')
+              // Start monitoring stats when connection is established
+              startStatsMonitoring()
               onStreamReady?.()
             }
           })
@@ -366,7 +368,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           {
             method: 'POST',
             headers: {
-              Authorization: `Basic ${apiKey}`,
+              Authorization: `Basic ${btoa(apiKey)}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -399,11 +401,17 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           const stats = await peerConnectionRef.current.getStats()
           stats.forEach((report) => {
             if (report.type === 'inbound-rtp' && report.kind === 'video') {
-              const videoStatusChanged = videoIsPlayingRef.current !== report.bytesReceived > lastBytesReceivedRef.current
+              const videoStatusChanged = videoIsPlayingRef.current !== (report.bytesReceived > lastBytesReceivedRef.current)
               if (videoStatusChanged) {
                 videoIsPlayingRef.current = report.bytesReceived > lastBytesReceivedRef.current
+                Logger.debug('Video status changed', { 
+                  isPlaying: videoIsPlayingRef.current,
+                  bytesReceived: report.bytesReceived 
+                })
+                
+                // Keep video visible when receiving data
                 if (videoRef.current && videoIsPlayingRef.current) {
-                  videoRef.current.style.opacity = isStreamReady ? '1' : '0'
+                  videoRef.current.style.opacity = '1'
                 }
               }
               lastBytesReceivedRef.current = report.bytesReceived
@@ -492,6 +500,9 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           // Asegurarse de que el video esté configurado correctamente
           videoRef.current.srcObject = event.streams[0]
           
+          // Make video visible immediately when track is received
+          videoRef.current.style.opacity = '1'
+          
           // Configurar eventos del video
           videoRef.current.onloadedmetadata = async () => {
             Logger.info('Video metadata cargada')
@@ -526,14 +537,26 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           videoRef.current.oncanplay = () => {
             Logger.info('Video listo para reproducir')
             setIsStreamReady(true)
+            // Ensure video is visible when ready
+            if (videoRef.current) {
+              videoRef.current.style.opacity = '1'
+            }
           }
 
           videoRef.current.onplaying = () => {
             Logger.info('Video reproduciendo')
+            // Ensure video is visible when playing
+            if (videoRef.current) {
+              videoRef.current.style.opacity = '1'
+            }
           }
 
           videoRef.current.onerror = (e) => {
             Logger.error('Error en video', e)
+            if (e && typeof e === 'object' && 'target' in e) {
+              const videoElement = e.target as HTMLVideoElement
+              console.error('Video error details:', videoElement.error)
+            }
             restartConnection()
           }
 
@@ -619,12 +642,39 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
             autoPlay
             playsInline
             muted={false}
-            onError={(e) => Logger.error('Error en video', e)}
-            onLoadedMetadata={() => Logger.info('Video metadata cargada')}
-            onCanPlay={() => Logger.info('Video listo para reproducir')}
-            onPlaying={() => Logger.info('Video reproduciendo')}
+            style={{ 
+              opacity: 1,
+              visibility: 'visible',
+              display: 'block'
+            }}
+            onError={(e) => {
+              Logger.error('Error en video', e)
+              if (e && typeof e === 'object' && 'target' in e) {
+                const videoElement = e.target as HTMLVideoElement
+                console.error('Video error details:', videoElement.error)
+              }
+            }}
+            onLoadedMetadata={() => {
+              Logger.info('Video metadata cargada')
+              console.log('Video dimensions:', videoRef.current?.videoWidth, 'x', videoRef.current?.videoHeight)
+            }}
+            onCanPlay={() => {
+              Logger.info('Video listo para reproducir')
+              console.log('Video can play - duration:', videoRef.current?.duration)
+            }}
+            onPlaying={() => {
+              Logger.info('Video reproduciendo')
+              console.log('Video is now playing')
+            }}
             onPause={() => Logger.info('Video pausado')}
             onEnded={() => Logger.info('Video finalizado')}
+            onLoadStart={() => {
+              Logger.info('Video load started')
+              console.log('Video load started')
+            }}
+            onProgress={() => {
+              Logger.debug('Video loading progress')
+            }}
           />
         </motion.div>
       </div>

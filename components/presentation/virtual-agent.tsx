@@ -124,7 +124,7 @@ export function VirtualAgent() {
 
       <StreamingAgent
         ref={streamingAgentRef}
-        apiKey={process.env.NEXT_PUBLIC_DID_API_KEY || ""}
+        apiKey={process.env.DID_API_KEY || ""}
         onStreamReady={handleStreamReady}
         onStreamError={handleStreamError}
       />

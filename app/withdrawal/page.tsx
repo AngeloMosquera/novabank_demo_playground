@@ -3,13 +3,13 @@
 import { useRouter } from "next/navigation"
 import { ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
+import { Navbar } from "@/components/dashboard/navbar"
 export default function NotificationsPage() {
   const router = useRouter()
 
   return (
     <div className="space-y-6 px-4 md:px-6 lg:px-8 pb-16 md:pb-20 max-w-screen-xl mx-auto">
-    
+      <Navbar />
 
       <div className="bg-white rounded-xl p-4">
         <h2 className="text-xl font-semibold text-[#1C3B5A] mb-6">Condiciones para retiro anticipado.</h2>
