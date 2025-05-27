@@ -7,6 +7,7 @@ import { X, TrendingUp, Calendar, DollarSign, PiggyBank, HelpCircle, RefreshCw }
 import { ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Navbar } from "@/components/dashboard/navbar"
 
 export default function InvestmentsPage() {
   const router = useRouter()
@@ -62,6 +63,7 @@ export default function InvestmentsPage() {
 
   return (
     <div className="space-y-6 px-4 md:px-6 lg:px-8 pb-16 md:pb-20 max-w-screen-xl mx-auto">
+      <Navbar />
       <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl mx-auto">
         <div className="flex items-center justify-between p-1 border-b">
           <div className="flex items-center gap-1">

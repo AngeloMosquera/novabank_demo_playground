@@ -297,9 +297,9 @@ export function VoiceRecognition({ onSpeechRecognized, className }: VoiceRecogni
         </button>
         
         {isRecording && (
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-red-600 rounded-full animate-pulse"></div>
-            <span className="text-sm text-gray-600">{getStatusText()}</span>
+          <div className="flex items-center gap-0">
+            {/* <div className="w-3 h-3 bg-red-600 rounded-full animate-pulse"></div> */}
+            {/* <span className="text-sm text-gray-600">{getStatusText()}</span> */}
           </div>
         )}
         

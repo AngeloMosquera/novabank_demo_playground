@@ -118,16 +118,71 @@ export default function Dashboard() {
   return (
     <>
       <main className="container mx-auto px-0 py-0">
+        {/* Sección de oportunidades personalizadas - Ahora segundo */}
+        <div className="mb-6">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold text-[#1C3B5A]">Oportunidades para ti</h3>
+          </div>
+
+          <div className="space-y-0">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <OpportunityCard
+                title="Maximiza tus ahorros"
+                description="Descubre nuestro nuevo Depósito a Plazo con tasa preferencial para ti."
+                cta=""
+                icon={<TrendingUp size={20} className="text-[#1C3B5A]" />}
+                onClick={() => {
+                  setIsInvestmentSimulatorOpen(true)
+                  trackInteraction("click", "opportunity_card_investment")
+                }}
+              />
+
+              <OpportunityCard
+                title="Estrategias para hacer crecer tu dinero"
+                description="3 estrategias para hacer crecer tu dinero en 2025."
+                cta=""
+                icon={<BookOpen size={20} className="text-[#1C3B5A]" />}
+                onClick={() => {
+                  window.alert("Abriendo artículo...")
+                  trackInteraction("click", "opportunity_card_article")
+                }}
+              />
+
+              <Card className="bg-gradient-to-r from-[#1C3B5A] to-[#2a5580] text-white">
+              <CardContent className="p-2">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                    <PiggyBank size={20} className="text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Inversión identificada</h3>
+                    <p className="text-sm text-white/80">Basada en tu perfil</p>
+                  </div>
+                </div>
+
+                <p className="text-sm mb-4">
+                  Hemos identificado una opción de inversión que podría interesarte basada en tu comportamiento
+                  financiero.
+                </p>
+
+                <div className="mt-4"></div>
+              </CardContent>
+            </Card>
+            </div>
+          </div>
+        </div>
+
         {/* Tarjetas de cuentas - Ahora tercero */}
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-1 mb-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <AccountCard
             type="savings"
             name="Cuenta de Ahorros"
-            number="7895"
+            number="4552 **** **** 7895"
             balance={userActivity.financialContext.availableBalance}
           />
 
-          <AccountCard type="credit" name="Tarjeta Oro" number="3456" balance={12500.75} limit={50000} />
+          <AccountCard type="credit" name="Tarjeta Oro" number="5412 **** **** 3456" balance={12500.75} limit={50000} />
         </div>
 
         {/* Sección de transacciones y resumen - Sigue siendo último */}

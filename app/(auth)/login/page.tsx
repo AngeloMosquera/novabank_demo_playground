@@ -66,9 +66,9 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center">
             <p className="text-gray-500">
-              ¿Necesitas hacer un retiro?{" "}
-              <Link href="/withdrawal" className="text-[#1C3B5A] font-medium hover:text-[#DEA742]">
-                Realizar retiro
+              ¿Nuevo aquí?{" "}
+              <Link href="/register" className="text-[#1C3B5A] font-medium hover:text-[#DEA742]">
+                Crear cuenta
               </Link>
             </p>
           </div>

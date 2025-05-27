@@ -15,7 +15,7 @@ export function AccountCard({ type, name, number, balance, currency = "MXN", lim
     return new Intl.NumberFormat("es-MX", {
       style: "currency",
       currency,
-      minimumFractionDigits: 2,
+      minimumFractionDigits: 0,
     }).format(amount)
   }
 
@@ -25,7 +25,7 @@ export function AccountCard({ type, name, number, balance, currency = "MXN", lim
     <Card
       className={`overflow-hidden ${type === "savings" ? "bg-gradient-to-r from-[#1C3B5A] to-[#2a5580]" : "bg-gradient-to-r from-[#DEA742] to-[#e8c078]"}`}
     >
-      <CardContent className="p-5">
+      <CardContent className="p-1">
         <div className="flex justify-between items-start">
           <div>
             <p className="text-white text-sm opacity-80">{name}</p>

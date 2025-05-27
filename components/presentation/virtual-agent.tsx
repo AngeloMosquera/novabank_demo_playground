@@ -27,20 +27,37 @@ const Logger = {
 export function VirtualAgent() {
   const [isStreamReady, setIsStreamReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [connectionState, setConnectionState] = useState<'connecting' | 'connected' | 'error' | 'disconnected'>('disconnected')
   const streamingAgentRef = useRef<{ sendMessage: (text: string) => void }>(null)
   const router = useRouter()
+  const isMountedRef = useRef(true)
 
   const handleStreamReady = () => {
+    if (!isMountedRef.current) return
     Logger.info('Stream listo para recibir mensajes')
     setIsStreamReady(true)
+    setConnectionState('connected')
+    setError(null) // Clear any previous errors when connection is successful
   }
 
   const handleStreamError = (error: string) => {
+    if (!isMountedRef.current) return
+    
+    // In development, WebRTC errors during strict mode are expected
+    if (process.env.NODE_ENV === 'development' && 
+        (error.includes('setRemoteDescription') || error.includes('m-lines') || error.includes('inicializar'))) {
+      Logger.warn('Error de desarrollo detectado (React Strict Mode), ignorando', { error })
+      return
+    }
+    
     Logger.error('Error en el stream', { error })
     setError(error)
+    setConnectionState('error')
   }
 
   const handleSpeechRecognized = async (text: string) => {
+    if (!isMountedRef.current) return
+    
     try {
       Logger.info('Transcripción recibida', { text })
 
@@ -69,7 +86,7 @@ export function VirtualAgent() {
       Logger.info('Respuesta de OpenAI recibida', result)
 
       // Enviar respuesta al avatar
-      if (result.response && streamingAgentRef.current) {
+      if (result.response && streamingAgentRef.current && isMountedRef.current) {
         const { text: responseText, page, reason } = result.response
         
         Logger.debug('Enviando respuesta al avatar', { 
@@ -89,34 +106,46 @@ export function VirtualAgent() {
         Logger.warn('Respuesta de OpenAI sin datos esperados', { result })
       }
     } catch (err) {
-      Logger.error('Error al procesar la transcripción', err)
-      setError("Error al procesar la solicitud")
+      if (isMountedRef.current) {
+        Logger.error('Error al procesar la transcripción', err)
+        setError("Error al procesar la solicitud")
+      }
     }
   }
 
   // Log cuando el componente se monta
   useEffect(() => {
     Logger.info('Componente VirtualAgent montado')
+    isMountedRef.current = true
+    
     return () => {
       Logger.info('Componente VirtualAgent desmontado')
+      isMountedRef.current = false
     }
   }, [])
 
-  // Log cuando cambia el estado de error
+  // Log cuando cambia el estado de error (solo en development con errores reales)
   useEffect(() => {
-    if (error) {
-      Logger.error('Error actualizado', { error })
+    if (error && isMountedRef.current) {
+      // Only log real errors, not development-related ones
+      if (!(process.env.NODE_ENV === 'development' && 
+            (error.includes('setRemoteDescription') || error.includes('m-lines')))) {
+        Logger.error('Error actualizado', { error })
+      }
     }
   }, [error])
 
   // Log cuando cambia el estado de stream
   useEffect(() => {
-    Logger.debug('Estado del stream actualizado', { isStreamReady })
+    if (isMountedRef.current) {
+      Logger.debug('Estado del stream actualizado', { isStreamReady })
+    }
   }, [isStreamReady])
 
   return (
     <div className="h-full w-full flex items-end justify-center bg-white relative">
-      {error && (
+      {/* Show errors only in production or for real errors */}
+      {error && process.env.NODE_ENV === 'production' && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg max-w-[80%] z-10">
           <p className="text-sm">{error}</p>
         </div>
@@ -124,7 +153,7 @@ export function VirtualAgent() {
 
       <StreamingAgent
         ref={streamingAgentRef}
-        apiKey={process.env.DID_API_KEY || ""}
+        apiKey={process.env.NEXT_PUBLIC_DID_API_KEY || ""}
         onStreamReady={handleStreamReady}
         onStreamError={handleStreamError}
       />

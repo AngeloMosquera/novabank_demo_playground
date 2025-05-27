@@ -13,7 +13,7 @@ const openai = new OpenAI({
 
 const schema = z.object({
   text: z.string(),
-  page: z.enum(["dashboard", "investments", "withdrawal", "profile"]),
+  page: z.enum(["dashboard", "investments", "withdrawal", "profile", "recommendations"]),
   reason: z.string(),
 });
 
@@ -22,7 +22,7 @@ const SYSTEM_PROMPT = `Actúa como un asistente bancario virtual dentro de la ap
 1. Si el usuario saluda (por ejemplo, dice "hola", "buenos días", etc.), responde con:
 {
   "mensaje": "¡Hola Carlos! Es un gusto verte de vuelta. He notado recientemente que estás interesado en que tus ahorros generen mejores rendimientos, así que preparé en el dashboard algunos productos y recursos que pueden ser interesantes para ti.",
-  "page": "dashboard"
+  "page": "recommendations"
 }
 
 2. Si el usuario pregunta por las condiciones para hacer un retiro anticipado, responde con:
